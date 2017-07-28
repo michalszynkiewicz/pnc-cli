@@ -76,14 +76,22 @@ def create_product_version(product_id, version, **kwargs):
         return utils.format_json(response.content)
 
 
-@arg("id", help="ID of the ProductVersion to retrieve", type=types.existing_product_version)
-def get_product_version(id):
+def get_product_version_raw(id):
     """
     Retrieve a specific ProductVersion by ProductVersion ID
     """
     response = utils.checked_api_call(versions_api, 'get_specific', id=id)
     if response:
-        return utils.format_json(response.content)
+        return response.content
+
+@arg("id", help="ID of the ProductVersion to retrieve", type=types.existing_product_version)
+def get_product_version(id):
+    """
+    Retrieve a specific ProductVersion by ProductVersion ID
+    """
+    response = get_product_version_raw(id)
+    if response:
+        return utils.format_json(response)
 
 
 # TODO: how should constraints be defined? Can a new productId be specified?
@@ -104,7 +112,7 @@ def update_product_version(id, **kwargs):
     """
     product_id = kwargs.get('product_id')
     if product_id is None:
-        product_id = get_product_version(id).product_id
+        product_id = get_product_version_raw(id).product_id
 
     version = kwargs.get('version')
     if version is not None:
